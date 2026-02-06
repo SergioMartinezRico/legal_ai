@@ -79,10 +79,41 @@ async function askQuestion() {
     const data = await response.json()
 
     if (response.ok) {
-      // Mostrar respuesta con efecto de escritura simple o directa
       responseContainer.classList.remove('hidden')
-      // Convertir saltos de línea en <br> para que se lea bien
+
+      // 1. Renderizar texto (Markdown)
       responseText.innerHTML = marked.parse(data.answer)
+
+      // 2. Renderizar Fuentes (NUEVO)
+      // Borramos fuentes anteriores si las hubiera
+      const existingSources = document.getElementById('sourcesBox')
+      if (existingSources) existingSources.remove()
+
+      // Si hay fuentes, las mostramos
+      if (data.sources && data.sources.length > 0) {
+        // Quitamos duplicados (Set) y ordenamos
+        const uniquePages = [...new Set(data.sources)].sort((a, b) => a - b)
+
+        // Las páginas en PDF suelen empezar en 0 internamente, sumamos 1 para que sea humano
+        const pagesHtml = uniquePages
+          .map(
+            (p) =>
+              `<span class="bg-indigo-100 text-indigo-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded border border-indigo-200">Pág. ${
+                p + 1
+              }</span>`
+          )
+          .join('')
+
+        const sourcesDiv = document.createElement('div')
+        sourcesDiv.id = 'sourcesBox'
+        sourcesDiv.className = 'mt-4 pt-4 border-t border-slate-200'
+        sourcesDiv.innerHTML = `
+                    <p class="text-xs text-slate-500 mb-2 font-bold uppercase">Fuentes consultadas:</p>
+                    <div class="flex flex-wrap gap-2">${pagesHtml}</div>
+                `
+
+        responseText.parentElement.appendChild(sourcesDiv)
+      }
     } else {
       alert('Error: ' + data.detail)
     }

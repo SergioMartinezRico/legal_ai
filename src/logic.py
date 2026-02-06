@@ -38,21 +38,24 @@ def process_document_to_vectorstore(file_path):
 
 def generate_response(vectorstore, query):
     """
-    Genera respuesta usando LCEL (LangChain Expression Language).
-    Esta es la forma moderna que evita errores de 'langchain.chains'.
+    Genera respuesta y devuelve también las fuentes (páginas exactas).
     """
-    # 1. Configurar LLM
-    llm = ChatGroq(
-        model_name="llama-3.3-70b-versatile", 
-        temperature=0
-    )
+    # 1. Configurar componentes
+    llm = ChatGroq(model_name="llama-3.3-70b-versatile", temperature=0)
+    retriever = vectorstore.as_retriever(search_kwargs={"k": 3}) # Traer 3 fragmentos
     
-    # 2. Configurar Retriever (Buscador)
-    retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+    # 2. Recuperar documentos (Paso explícito para guardar las fuentes)
+    docs = retriever.invoke(query)
     
-    # 3. Prompt (Instrucciones)
+    # 3. Preparar contexto
+    def format_docs(docs):
+        return "\n\n".join([d.page_content for d in docs])
+    
+    context_text = format_docs(docs)
+    
+    # 4. Generar respuesta
     template = """
-    Eres un auditor legal experto. Analiza el siguiente contexto del contrato:
+    Eres un asistente legal experto. Analiza el siguiente fragmento del documento legal:
     
     {context}
     
@@ -62,19 +65,15 @@ def generate_response(vectorstore, query):
     Respuesta profesional:
     """
     prompt = ChatPromptTemplate.from_template(template)
+    chain = prompt | llm | StrOutputParser()
     
-    # 4. Función auxiliar para formatear docs
-    def format_docs(docs):
-        return "\n\n".join([d.page_content for d in docs])
-
-    # 5. CADENA LCEL (La clave de la actualización)
-    # Recupera Docs -> Formatea -> Pasa al Prompt -> LLM -> Texto
-    rag_chain = (
-        {"context": retriever | format_docs, "question": RunnablePassthrough()}
-        | prompt
-        | llm
-        | StrOutputParser()
-    )
+    answer = chain.invoke({"context": context_text, "question": query})
     
-    # 6. Ejecutar
-    return rag_chain.invoke(query)
+    # 5. RETORNAR DICCIONARIO CON RESPUESTA Y FUENTES
+    # Extraemos solo la página de los metadatos para enviarla limpia
+    sources_list = [doc.metadata.get("page", 0) for doc in docs]
+    
+    return {
+        "answer": answer,
+        "sources": sources_list
+    }

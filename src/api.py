@@ -46,8 +46,13 @@ async def ask_question(request: QuestionRequest):
     if VECTORSTORE_GLOBAL is None:
         raise HTTPException(status_code=400, detail="Primero debes subir un documento.")
     try:
-        response = generate_response(VECTORSTORE_GLOBAL, request.query)
-        return {"answer": response}
+        # Recibimos el dict completo {answer, sources}
+        result = generate_response(VECTORSTORE_GLOBAL, request.query)
+        
+        return {
+            "answer": result["answer"],
+            "sources": result["sources"] # Pasamos la lista de páginas [1, 3, 5]
+        }
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
