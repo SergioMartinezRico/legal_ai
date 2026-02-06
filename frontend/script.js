@@ -82,7 +82,7 @@ async function askQuestion() {
       // Mostrar respuesta con efecto de escritura simple o directa
       responseContainer.classList.remove('hidden')
       // Convertir saltos de línea en <br> para que se lea bien
-      responseText.innerHTML = data.answer.replace(/\n/g, '<br>')
+      responseText.innerHTML = marked.parse(data.answer)
     } else {
       alert('Error: ' + data.detail)
     }
