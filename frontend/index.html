@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Legal Auditor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-100 min-h-screen p-8">
+    <div
+      class="max-w-3xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden"
+    >
+      <div class="bg-indigo-700 p-6 text-white">
+        <h1 class="text-3xl font-bold flex items-center gap-3">
+          ⚖️ AI Legal Auditor
+        </h1>
+        <p class="text-indigo-200 mt-2">
+          Sube tu contrato y detecta riesgos en segundos.
+        </p>
+      </div>
+
+      <div class="p-8 space-y-8">
+        <div
+          class="border-2 border-dashed border-slate-300 rounded-lg p-6 hover:bg-slate-50 transition-colors"
+          id="dropZone"
+        >
+          <h2 class="text-lg font-semibold text-slate-700 mb-4">
+            1. Ingesta del Documento
+          </h2>
+
+          <div class="flex gap-4 items-center">
+            <input
+              type="file"
+              id="pdfFile"
+              accept=".pdf"
+              class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
+            />
+
+            <button
+              onclick="uploadDocument()"
+              id="btnUpload"
+              class="bg-indigo-600 text-white px-6 py-2.5 rounded-full font-medium hover:bg-indigo-800 transition shadow-lg shadow-indigo-200"
+            >
+              Analizar PDF
+            </button>
+          </div>
+          <p id="statusMsg" class="mt-3 text-sm font-medium text-slate-400">
+            Esperando archivo...
+          </p>
+        </div>
+
+        <div
+          id="chatSection"
+          class="opacity-50 pointer-events-none transition-all duration-500 filter blur-[1px]"
+        >
+          <h2 class="text-lg font-semibold text-slate-700 mb-4">
+            2. Consultas al Experto
+          </h2>
+
+          <div class="relative">
+            <input
+              type="text"
+              id="questionInput"
+              placeholder="Ej: ¿Hay cláusulas de penalización económica?"
+              class="w-full pl-4 pr-32 py-4 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none text-slate-700 shadow-sm"
+              onkeypress="handleEnter(event)"
+            />
+
+            <button
+              onclick="askQuestion()"
+              id="btnAsk"
+              class="absolute right-2 top-2 bottom-2 bg-slate-900 text-white px-6 rounded-lg font-medium hover:bg-black transition"
+            >
+              Preguntar
+            </button>
+          </div>
+
+          <div id="responseContainer" class="hidden mt-6">
+            <div class="flex gap-4">
+              <div
+                class="min-w-[40px] h-10 rounded-full bg-indigo-100 flex items-center justify-center text-xl"
+              >
+                🤖
+              </div>
+              <div
+                class="bg-slate-50 p-6 rounded-2xl rounded-tl-none border border-slate-100 w-full"
+              >
+                <h3
+                  class="text-xs font-bold text-indigo-500 uppercase mb-2 tracking-wider"
+                >
+                  Informe Generado
+                </h3>
+                <div
+                  id="responseText"
+                  class="prose prose-slate text-slate-700 leading-relaxed"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

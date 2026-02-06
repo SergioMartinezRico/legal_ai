@@ -1,0 +1,12 @@
+langchain
+langchain-groq
+langchain-community
+streamlit
+pypdf
+faiss-cpu
+python-dotenv
+huggingface-hub
+sentence-transformers
+fastapi
+uvicorn
+python-multipart
